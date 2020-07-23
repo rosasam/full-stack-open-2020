@@ -1,0 +1,16 @@
+title 0.6 New Note (SPA)
+
+note over browser:
+Submitting a note triggers an event handler in the browser-side JS.
+Event handler creates a JSON serialized note.
+Event handler updates DOM with new note.
+end note
+
+
+browser->server: HTTP POST https://fullstack-exampleapp.herokuapp.com/new_note_spa (body: JSON-serilazed note)
+
+note over server:
+server updates data with new note
+end note
+
+server-->browser: HTTP 201 (JSON {message: 'note created'})
