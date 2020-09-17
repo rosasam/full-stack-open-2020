@@ -1,20 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import AddPerson from './components/AddPerson'
 import Search from './components/Search'
+import axios from 'axios'
 
 
 const App = () => {
   const [persons, setPersons] = useState([])
-
   const [ newName, setNewName ] = useState('')
-
   const [ newNumber, setNewNumber ] = useState('')
-
   const [ searchQuery, setSearchQuery ] = useState('')
-
+  
   const shownPersons = persons.filter(
     person => person.name.toLowerCase().includes(searchQuery.toLowerCase()))
+
+  // Fetch Persons from JSON database
+  useEffect(() => axios
+    .get('http://localhost:3001/persons')
+    .then(response => {
+      setPersons(response.data)
+    }), [])
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
