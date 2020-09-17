@@ -2,23 +2,20 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 const Weather = ({country}) => {
-  const apiKey = process.env.REACT_APP_API_KEY
   const [ weather, setWeather] = useState()
   
   useEffect(() => {
     const params = {
-      access_key: apiKey,
+      access_key: process.env.REACT_APP_API_KEY,
       query: country.capital
     }
-    console.log(params)
     axios
       .get('http://api.weatherstack.com/current', {params})
       .then(response => {
+        // The response could be handled better in case of errors.
         setWeather(response.data.current)
-        console.log(response.data)
       })
-    
-  }, [country, apiKey])
+  }, [country])
 
   return (
     <div>
@@ -27,7 +24,7 @@ const Weather = ({country}) => {
       </h2>
         {weather ?
         <>
-          <img src={weather.weather_icons[0]} width='80'></img>
+          <img src={weather.weather_icons[0]} alt={weather.weather_descriptions[0]} width='80'></img>
           <table>
             <tbody>
               <tr>

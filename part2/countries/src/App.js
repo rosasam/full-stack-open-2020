@@ -13,7 +13,6 @@ const App = () => {
 
   // Fetch country data with axios (once)
   useEffect(() => {
-    console.log("fetching countries")
     axios
       .get('https://restcountries.eu/rest/v2/all')
       .then(response => {
