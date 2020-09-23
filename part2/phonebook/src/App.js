@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import AddPerson from './components/AddPerson'
 import Search from './components/Search'
+import Message from './components/Message'
 import personService from './services/persons'
 
 const App = () => {
@@ -9,16 +10,10 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ searchQuery, setSearchQuery ] = useState('')
+  const [ message, setMessage ] = useState({text: null, type: ''})
   
   const shownPersons = persons.filter(
     person => person.name.toLowerCase().includes(searchQuery.toLowerCase()))
-
-  // GET persons from JSON database
-  useEffect(() => {
-    personService
-    .getAll()
-    .then(persons => setPersons(persons))
-  }, [])
 
   // Handle input fields
   const handleNameChange = (event) => {
@@ -33,10 +28,16 @@ const App = () => {
     setSearchQuery(event.target.value)
   }
 
+  // GET persons from JSON database
+  useEffect(() => {
+    personService
+    .getAll()
+    .then(persons => setPersons(persons))
+  }, [])
+
   // CREATE person
   const addPerson = (event) => {
     event.preventDefault()
-
     // Attempt to update number if the name is already in the phonebook
     const existingPerson = persons.find(p => p.name === newName)
     if (existingPerson) {
@@ -55,6 +56,8 @@ const App = () => {
       .create(newPerson)
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
+        setMessage({text:`Added ${returnedPerson.name}`, type: ''})
+        setTimeout(() => resetMessage(), 3000)
       })
 
     setNewName('')
@@ -73,14 +76,16 @@ const App = () => {
     const newPerson = {...person, number: newNumber}
     personService
       .update(id, newPerson)
-      .then(updatedPerson => setPersons(persons.map(
-        p => p.id !== id ? p : updatedPerson)))
+      .then(updatedPerson => {
+        setPersons(persons.map(p => p.id !== id ? p : updatedPerson))
+        setMessage({text: `Updated number of ${updatedPerson.name} to '${updatedPerson.number}'`, type: ''})
+        setTimeout(() => resetMessage(), 3000)
+      })
       .catch(error => handleServerError(error, person))
 
     setNewName('')
     setNewNumber('')
   }
-
 
   // DELETE person
   const deletePerson = id => {
@@ -88,7 +93,11 @@ const App = () => {
     if (window.confirm(`Delete ${person.name}?`)) {
       personService
         .delete_(id)
-        .then(setPersons(persons.filter(p => p.id !== id)))
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== id))
+          setMessage({text: `Deleted ${person.name}`, type: ''})
+          setTimeout(() => resetMessage(), 3000) 
+        })
         .catch(error => handleServerError(error, person))
     }  
   }
@@ -96,15 +105,23 @@ const App = () => {
   // Handles server errors "gracefully" (debatable if alert is graceful),
   // assuming that errors stem from trying to interact with an already deleted object
   const handleServerError = (error, person) => {
-    alert(
-      `${person.name} was already deleted from the server.`
-    )
+    setMessage({
+      text: `Information of ${person.name} was already deleted from the server.`,
+      type: 'error'
+    })
+    setTimeout(() => resetMessage(), 5000)
     setPersons(persons.filter(p => p.id !== person.id))
   }
+
+  // Convenience function to reset message text and class to empty
+  const resetMessage = () => setMessage({text: null, type: ''})
 
   return (
     <div>
       <h1>Phonebook</h1>
+        <Message
+          message={message}
+        />
       <div>
         <h2>Search</h2>
         <Search 

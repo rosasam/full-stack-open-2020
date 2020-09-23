@@ -1,0 +1,13 @@
+.message {
+  color: white;
+  background: seagreen;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.error {
+  background: darkred;
+}
