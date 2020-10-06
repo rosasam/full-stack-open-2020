@@ -38,6 +38,11 @@ const App = () => {
   // CREATE person
   const addPerson = (event) => {
     event.preventDefault()
+    if (!(newName && newNumber)) {
+      setMessage({text:`Name and number required`, type: 'error'})
+      setTimeout(() => resetMessage(), 3000)
+      return
+    }
     // Attempt to update number if the name is already in the phonebook
     const existingPerson = persons.find(p => p.name === newName)
     if (existingPerson) {
