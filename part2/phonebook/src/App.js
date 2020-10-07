@@ -64,6 +64,7 @@ const App = () => {
         setMessage({text:`Added ${returnedPerson.name}`, type: ''})
         setTimeout(() => resetMessage(), 3000)
       })
+      .catch(error => handleServerError(error))
 
     setNewName('')
     setNewNumber('')
@@ -101,21 +102,22 @@ const App = () => {
         .then(() => {
           setPersons(persons.filter(p => p.id !== id))
           setMessage({text: `Deleted ${person.name}`, type: ''})
-          setTimeout(() => resetMessage(), 3000) 
+          setTimeout(() => resetMessage(), 2000) 
         })
-        .catch(error => handleServerError(error, person))
+        .catch(error => {
+          handleServerError(error, person)
+          setPersons(persons.filter(p => p.id !== person.id))
+        })
     }  
   }
 
-  // Handles server errors "gracefully" (debatable if alert is graceful),
-  // assuming that errors stem from trying to interact with an already deleted object
+  // Handles server errors
   const handleServerError = (error, person) => {
     setMessage({
-      text: `Information of ${person.name} was already deleted from the server.`,
+      text: error.response.data.error,
       type: 'error'
     })
-    setTimeout(() => resetMessage(), 5000)
-    setPersons(persons.filter(p => p.id !== person.id))
+    setTimeout(() => resetMessage(), 4000)
   }
 
   // Convenience function to reset message text and class to empty
