@@ -106,3 +106,5 @@ dist
 # VS Code workspace settings
 .vscode
 *.code-workspace
+
+.DS_Store
