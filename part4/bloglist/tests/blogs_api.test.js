@@ -100,17 +100,56 @@ describe('addition of a new blog', () => {
   })
 })
 
-
 describe('deletion of a blog', () => {
   test('succeeds if id is valid', async () => {
     const blogsBefore = await helper.blogsInDb()
     const blogToDelete = blogsBefore[0]
+
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
       .expect(204)
     
     const blogsAfter = await helper.blogsInDb()
     expect(blogsAfter).toHaveLength(helper.initialBlogs.length - 1) 
+  })
+
+  test('fails (404) if id is nonexistent', async () => {
+    const fakeId = await helper.fakeId()
+
+    await api
+      .delete(`/api/blogs/${fakeId}`)
+      .expect(404)
+    
+    const blogsAfter = await helper.blogsInDb()
+    expect(blogsAfter).toHaveLength(helper.initialBlogs.length) 
+  })
+})
+
+describe('updating a blog', () => {
+  test('succeeds with valid id and data', async () => {
+    const blogsBefore = await helper.blogsInDb()
+    const blogToUpdate = {
+      id: blogsBefore[0].id, 
+      likes: blogsBefore[0].likes + 1
+    }
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(blogToUpdate)
+      .expect(200)
+    
+    const blogsAfter = await helper.blogsInDb()
+    expect(blogsAfter).toHaveLength(helper.initialBlogs.length)
+    expect(blogsAfter[0].likes).toEqual(blogToUpdate.likes)
+  })
+
+  test('fails with nonexistent id', async () => {
+    const fakeId = await helper.fakeId()
+
+    await api
+      .put(`/api/blogs/${fakeId}`)
+      .send({title: 'temp'})
+      .expect(404)
   })
 })
 

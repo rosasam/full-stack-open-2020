@@ -4,10 +4,18 @@ const initialBlogs = [ { _id: '5a422a851b54a676234d17f7', title: 'React patterns
 
 const blogsInDb = async () => {
   const blogs = await Blog.find({})
-  return blogs.map(blog => blog.toJSON)
+  return blogs.map(blog => blog.toJSON())
+}
+
+const fakeId = async () => {
+  const blog = new Blog({title: 'temp', url: 'temp', author: 'temp'})
+  await blog.save()
+  await blog.remove()
+  return blog._id.toString()
 }
 
 module.exports = {
   initialBlogs,
-  blogsInDb
+  blogsInDb,
+  fakeId
 }
