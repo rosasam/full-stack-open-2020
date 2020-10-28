@@ -5,5 +5,6 @@ Content-Type: application/json
   "title": "Path of the Twin Stars",
   "author": "Wei Shi Lindon", 
   "url": "google.com",
-  "likes": 2
+  "likes": 2,
+  "userId": "5f99385994fdc6213594201f"
 }
