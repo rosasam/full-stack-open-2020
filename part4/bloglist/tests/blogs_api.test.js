@@ -39,6 +39,29 @@ describe('when there are initially some blogs saved', () => {
   })
 })
 
+describe('viewing one blog', () => {
+  test('succeeds with valid id', async () => {
+    const blogs = await helper.blogsInDb()
+    const blog = blogs[0]
+    
+    const result = await api
+      .get(`/api/blogs/${blog.id}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const processedBlog = JSON.parse(JSON.stringify(blog))
+    expect(result.body).toEqual(processedBlog)
+  })
+
+  test('fails (404) with nonexistent id', async () => {
+    const fakeId = await helper.fakeId()
+
+    await api
+      .get(`/api/blogs/${fakeId}`)
+      .expect(404)
+  })
+})
+
 describe('addition of a new blog', () => {
   test('succeeds with valid data', async () => {
     const blogTitle = 'Path of Twin Stars'

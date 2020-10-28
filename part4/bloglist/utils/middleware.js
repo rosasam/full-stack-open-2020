@@ -11,6 +11,10 @@ const errorHandler = (error, request, response, next) => {
     response.status(400).send({ error: error.message })
   }
 
+  if (error.name === 'CastError') {
+    response.status(404).send({ error: 'invalid id' })
+  }
+
   next(error)
 }
 

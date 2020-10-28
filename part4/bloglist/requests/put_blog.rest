@@ -2,5 +2,5 @@ PUT http://localhost:3003/api/blogs/5f9920ab18866819b87c4499
 Content-Type: application/json
 
 {
-  "_id": 51
+  "likes": 51
 }
