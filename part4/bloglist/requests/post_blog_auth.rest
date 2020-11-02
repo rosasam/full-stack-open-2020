@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkVBIiwiaWQiOiI1Zjk5Mzg1OTk0ZmRjNjIxMzU5NDIwMWYiLCJpYXQiOjE2MDM4OTgwMjR9.m1-vV_SAQ72QZxk4ZRUzqEhiD7ekb97ZvtK4DuEKYgQ
+
+{
+  "title": "test", 
+  "author": "aaa",
+  "url": "google.com"
+}
+
