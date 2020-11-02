@@ -13,7 +13,6 @@ blogsRouter.get('/', async (request, response) => {
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
 
-  console.log('token', request.token)
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
   if (!(request.token && decodedToken.id)) {
     return response.status(401).json({ error: 'token missing or invalid' })
@@ -48,16 +47,22 @@ blogsRouter.delete('/:id', async (request, response) => {
   if (!(request.token && decodedToken.id)) {
     return response.status(401).json({ error: 'token missing or invalid' })
   }
-  const blog = await Blog.findById(request.id)
-  if (decodedToken.id === blog.user.id.toString()) {
-    const removed = await Blog.findByIdAndRemove(request.id)
-    if (removed) {
-      response.status(204).end()
-    } else {
-      response.status(404).send({ error: 'nonexistent id' })
-    }
+
+  const blogId = request.params.id
+  const blog = await Blog.findById(blogId)
+  if (!blog) {
+    return response.status(404).send({ error: 'nonexistent id' })
+  }
+
+  if (decodedToken.id !== blog.user.toString()) {
+    return response.status(401).send({ error: 'blog does not belong to user' })
+  }
+
+  const removed = await Blog.findByIdAndRemove(blogId)
+  if (removed) {
+    response.status(204).end()
   } else {
-    response.status(401).send({ error: 'blog does not belong to user' })
+    response.status(404).send({ error: 'blog was already deleted' })
   }
 })
 
@@ -69,15 +74,18 @@ blogsRouter.put('/:id', async (request, response) => {
 
   const blog = request.body
   const dbBlog = await Blog.findById(blog.id)
-  if (decodedToken.id === dbBlog.user.id.toString()) {
-    const updated = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
-    if (updated) {
-      response.status(200).json(updated)
-    } else {
-      response.status(404).send({ error: 'nonexistent id' })
-    }
+  if (!dbBlog) {
+    return response.status(404).send({ error: 'nonexistent id' })
+  }
+
+  if (decodedToken.id !== dbBlog.user.toString()) {
+    return response.status(401).send({ error: 'blog does not belong to user' })
+  }
+  const updated = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+  if (updated) {
+    response.status(200).json(updated)
   } else {
-    response.status(401).send({ error: 'blog does not belong to user' })
+    response.status(404).send({ error: 'blog not found, it was probably deleted' })
   }
 })
 

@@ -12,7 +12,7 @@ const errorHandler = (error, request, response, next) => {
   } else if (error.name === 'CastError') {
     response.status(404).send({ error: 'invalid id' })
   } else if (error.name === 'JsonWebTokenError') {
-    return response.status(401).json({ error: 'invalid token' })
+    return response.status(401).json({ error: 'token missing or invalid' })
   }
 
   next(error)

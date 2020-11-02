@@ -3,15 +3,41 @@ const supertest = require('supertest')
 const helper = require('./test_helper')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const api = supertest(app)
+let token
 
 beforeEach(async () => {
   await Blog.deleteMany({})
+  await User.deleteMany({})
+
+  const passwordHash = await bcrypt.hash('root', 10)
+  const user = {
+    passwordHash,
+    name: 'root',
+    username: 'root',
+    blogs: helper.initialBlogs.map(b => b._id)
+  }
+  const userObject = new User(user)
+  const savedUser = await userObject.save()
+
   for (let blog of helper.initialBlogs) {
-    const blogObject = new Blog(blog)
+    const blogObject = new Blog({
+      ...blog,
+      user: savedUser._id
+    })
     await blogObject.save()
   }
+
+  const userForToken = {
+    username: savedUser.username,
+    id: savedUser._id,
+  }
+  const jwtToken = jwt.sign(userForToken, process.env.SECRET)
+  token = `Bearer ${jwtToken}`
 })
 
 describe('when there are initially some blogs saved', () => {
@@ -74,6 +100,7 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', token)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -95,6 +122,7 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', token)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -113,12 +141,31 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', token)
       .send(newBlog)
       .expect(400)
 
     const response = await api.get('/api/blogs')
 
     expect(response.body).toHaveLength(helper.initialBlogs.length)
+  })
+
+  test('fails when no token is provided', async () => {
+    const blogTitle = 'Path of Twin Stars'
+    const newBlog = {
+      'title': blogTitle,
+      'author': 'Wei Shi Lindon',
+      'url': 'https://www.willwight.com/a-blog-of-dubious-intent',
+      'likes': 50426
+    }
+
+    const response = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+    expect(response.body.error).toContain('token missing or invalid')
   })
 })
 
@@ -129,6 +176,7 @@ describe('deletion of a blog', () => {
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', token)
       .expect(204)
 
     const blogsAfter = await helper.blogsInDb()
@@ -140,6 +188,7 @@ describe('deletion of a blog', () => {
 
     await api
       .delete(`/api/blogs/${fakeId}`)
+      .set('Authorization', token)
       .expect(404)
 
     const blogsAfter = await helper.blogsInDb()
@@ -147,7 +196,15 @@ describe('deletion of a blog', () => {
   })
 
   test('fails if token is invalid', async () => {
-    return
+    const blogsBefore = await helper.blogsInDb()
+    const blogToDelete = blogsBefore[0]
+
+    const response = await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+    expect(response.body.error).toContain('token missing or invalid')
   })
 })
 
@@ -161,6 +218,7 @@ describe('updating a blog', () => {
 
     await api
       .put(`/api/blogs/${blogToUpdate.id}`)
+      .set('Authorization', token)
       .send(blogToUpdate)
       .expect(200)
 
@@ -174,6 +232,7 @@ describe('updating a blog', () => {
 
     await api
       .put(`/api/blogs/${fakeId}`)
+      .set('Authorization', token)
       .send({ title: 'temp' })
       .expect(404)
   })
