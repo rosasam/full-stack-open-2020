@@ -31,6 +31,7 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
+app.use(middleware.tokenExtractor)
 
 // bind routers to correct endpoints
 app.use('/api/login', loginRouter)

@@ -3,14 +3,6 @@ const jwt = require('jsonwebtoken')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
-const getTokenFrom = request => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.toLowerCase().startsWith('bearer')) {
-    return authorization.substring(7)
-  }
-  return null
-}
-
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
     .find({})
@@ -21,9 +13,9 @@ blogsRouter.get('/', async (request, response) => {
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
 
-  const token = getTokenFrom(request)
-  const decodedToken = jwt.verify(token, process.env.SECRET)
-  if (!(token && decodedToken.id)) {
+  console.log('token', request.token)
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!(request.token && decodedToken.id)) {
     return response.status(401).json({ error: 'token missing or invalid' })
   }
   const user = await User.findById(decodedToken.id)
@@ -52,21 +44,40 @@ blogsRouter.get('/:id', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-  const removed = await Blog.findByIdAndRemove(request.params.id)
-  if (removed) {
-    response.status(204).end()
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!(request.token && decodedToken.id)) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+  const blog = await Blog.findById(request.id)
+  if (decodedToken.id === blog.user.id.toString()) {
+    const removed = await Blog.findByIdAndRemove(request.id)
+    if (removed) {
+      response.status(204).end()
+    } else {
+      response.status(404).send({ error: 'nonexistent id' })
+    }
   } else {
-    response.status(404).send({ error: 'nonexistent id' })
+    response.status(401).send({ error: 'blog does not belong to user' })
   }
 })
 
 blogsRouter.put('/:id', async (request, response) => {
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!(request.token && decodedToken.id)) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
   const blog = request.body
-  const updated = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
-  if (updated) {
-    response.status(200).json(updated)
+  const dbBlog = await Blog.findById(blog.id)
+  if (decodedToken.id === dbBlog.user.id.toString()) {
+    const updated = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+    if (updated) {
+      response.status(200).json(updated)
+    } else {
+      response.status(404).send({ error: 'nonexistent id' })
+    }
   } else {
-    response.status(404).send({ error: 'nonexistent id' })
+    response.status(401).send({ error: 'blog does not belong to user' })
   }
 })
 

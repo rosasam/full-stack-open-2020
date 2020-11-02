@@ -123,7 +123,7 @@ describe('addition of a new blog', () => {
 })
 
 describe('deletion of a blog', () => {
-  test('succeeds if id is valid', async () => {
+  test('succeeds if token and id is valid', async () => {
     const blogsBefore = await helper.blogsInDb()
     const blogToDelete = blogsBefore[0]
 
@@ -144,6 +144,10 @@ describe('deletion of a blog', () => {
 
     const blogsAfter = await helper.blogsInDb()
     expect(blogsAfter).toHaveLength(helper.initialBlogs.length)
+  })
+
+  test('fails if token is invalid', async () => {
+    return
   })
 })
 
