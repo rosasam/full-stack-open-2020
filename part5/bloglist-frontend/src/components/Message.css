@@ -1,0 +1,17 @@
+.message {
+    color: white;
+    background: gray;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .info {
+    background: seagreen;
+  }
+  
+  .error {
+    background: darkred;
+  }
