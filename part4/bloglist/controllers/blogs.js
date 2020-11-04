@@ -73,7 +73,7 @@ blogsRouter.put('/:id', async (request, response) => {
   }
 
   const blog = request.body
-  const dbBlog = await Blog.findById(blog.id)
+  const dbBlog = await Blog.findById(request.params.id)
   if (!dbBlog) {
     return response.status(404).send({ error: 'nonexistent id' })
   }

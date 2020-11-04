@@ -86,6 +86,23 @@ const App = () => {
     }
   }
 
+  const addLike = async (updateBlog) => {
+    try {
+      const blog = await blogService.update(updateBlog.id, {
+        title: updateBlog.title,
+        author: updateBlog.author,
+        url: updateBlog.url,
+        likes: updateBlog.likes + 1,
+        user: updateBlog.user.id
+      })
+      setBlogs(blogs.map(b => {
+        return b.id === blog.id ? {...b, likes: blog.likes} : b
+      }))
+    } catch (exception) {
+      displayErrorMessage('Could not like blog')
+    }
+  }
+
   const loginForm = () => {
     return (
       <Togglable 
@@ -106,8 +123,10 @@ const App = () => {
   const userInfo = () => {
     return (
       <div>
-        <div>{user.name} logged-in</div>
-        <button onClick={handleLogout}>logout</button>
+        <div>
+          Logged in as {user.name}
+          <button onClick={handleLogout}>logout</button>  
+        </div>
       </div>
     )
   }
@@ -144,7 +163,7 @@ const App = () => {
         </div>
       }
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} addLike={addLike} />
       )}
     </div>
   )
