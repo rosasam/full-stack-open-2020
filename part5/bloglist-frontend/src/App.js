@@ -16,7 +16,7 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+      setBlogs(blogs.sort((a, b) => a.likes < b.likes))
     )  
   }, [])
 
@@ -57,7 +57,7 @@ const App = () => {
       const user = await loginService.login({
         username, password,
       })
-
+      console.log(user)
       blogService.setToken(user.token)
       window.localStorage.setItem('loggedInUser', JSON.stringify(user))
       setUser(user)
@@ -82,7 +82,7 @@ const App = () => {
       displayInfoMessage(`a new blog ${blog.title} by ${blog.author} added`)
       blogFormRef.current.toggleVisibility()
     } catch (exception) {
-      displayErrorMessage('Adding blog failed')
+      displayErrorMessage(`Could not add blog: ${exception.response.data.error}`)
     }
   }
 
@@ -95,11 +95,28 @@ const App = () => {
         likes: updateBlog.likes + 1,
         user: updateBlog.user.id
       })
-      setBlogs(blogs.map(b => {
-        return b.id === blog.id ? {...b, likes: blog.likes} : b
-      }))
+      setBlogs(
+        blogs
+          .map(b => {
+            return b.id === blog.id ? {...b, likes: blog.likes} : b
+          })
+          .sort((a, b) => a.likes < b.likes)
+      )
     } catch (exception) {
-      displayErrorMessage('Could not like blog')
+      displayErrorMessage(`Could not like blog: ${exception.response.data.error}`)
+    }
+  }
+
+  const deleteBlog = async (blog) => {
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author} permanently?`)) {
+      try {
+        
+        await blogService.delete_(blog.id)
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+        displayInfoMessage('Blog deleted')
+      } catch (exception) {
+        displayErrorMessage(`Could not delete blog: ${exception.response.data.error}`)
+      }
     }
   }
 
@@ -163,7 +180,13 @@ const App = () => {
         </div>
       }
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} addLike={addLike} />
+        <Blog
+        key={blog.id}
+        blog={blog}
+        addLike={addLike}
+        deleteBlog={deleteBlog}
+        isOwnedByUser={user ? blog.user.username === user.username : false}
+        />
       )}
     </div>
   )

@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 
-const Blog = ({ blog, addLike }) => {
+const Blog = ({ blog, addLike, deleteBlog, isOwnedByUser }) => {
   const blogStyle = {
     margin: 10,
     padding: 10,
@@ -24,8 +24,11 @@ const Blog = ({ blog, addLike }) => {
       </div>
       <div style={showWhenVisible}>
         <div>{blog.url}</div>
-        <div>likes: {blog.likes} <button value={blog} onClick={() => addLike(blog)}>like</button></div>
+        <div>likes: {blog.likes} <button onClick={() => addLike(blog)}>like</button></div>
         <div>{blog.user.name}</div>
+        <button
+        style={{backgroundColor: 'red', display: isOwnedByUser ? '': 'none'}}
+        onClick={() => deleteBlog(blog)}>remove</button>
       </div>
     </div>
   )
