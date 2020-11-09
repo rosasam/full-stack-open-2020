@@ -1,7 +1,6 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { render, fireEvent } from '@testing-library/react'
-import { prettyDOM } from '@testing-library/dom'
 import Blog from './Blog'
 
 describe('<Blog />', () => {
@@ -30,8 +29,6 @@ describe('<Blog />', () => {
 
     const likesElement = component.getByText(`likes: ${blog.likes}`)
     expect(likesElement).not.toBeVisible()
-    // const blogEle = component.container.querySelector('.blog')
-    // console.log(prettyDOM(blogEle))
   })
 
   test('renders url and likes when view button is clicked', () => {
