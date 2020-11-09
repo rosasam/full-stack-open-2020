@@ -17,7 +17,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs(blogs.sort((a, b) => a.likes < b.likes))
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -36,11 +36,11 @@ const App = () => {
       class: className
     })
     setTimeout(() => {
-        setMessage({
-          text: null,
-          class: null,
-        })
-      }, timeout) 
+      setMessage({
+        text: null,
+        class: null,
+      })
+    }, timeout)
   }
 
   const displayErrorMessage = text => {
@@ -98,7 +98,7 @@ const App = () => {
       setBlogs(
         blogs
           .map(b => {
-            return b.id === blog.id ? {...b, likes: blog.likes} : b
+            return b.id === blog.id ? { ...b, likes: blog.likes } : b
           })
           .sort((a, b) => a.likes < b.likes)
       )
@@ -110,7 +110,7 @@ const App = () => {
   const deleteBlog = async (blog) => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author} permanently?`)) {
       try {
-        
+
         await blogService.delete_(blog.id)
         setBlogs(blogs.filter(b => b.id !== blog.id))
         displayInfoMessage('Blog deleted')
@@ -122,17 +122,17 @@ const App = () => {
 
   const loginForm = () => {
     return (
-      <Togglable 
-          showButtonLabel={'login'}
-          hideButtonLabel={'cancel'}
-        >
-          <Login 
-            username={username}
-            password={password}
-            setUsername={setUsername}
-            setPassword={setPassword}
-            handleLogin={handleLogin}
-          />
+      <Togglable
+        showButtonLabel={'login'}
+        hideButtonLabel={'cancel'}
+      >
+        <Login
+          username={username}
+          password={password}
+          setUsername={setUsername}
+          setPassword={setPassword}
+          handleLogin={handleLogin}
+        />
       </Togglable>
     )
   }
@@ -142,7 +142,7 @@ const App = () => {
       <div>
         <div>
           Logged in as {user.name}
-          <button onClick={handleLogout}>logout</button>  
+          <button onClick={handleLogout}>logout</button>
         </div>
       </div>
     )
@@ -164,7 +164,7 @@ const App = () => {
   return (
     <div>
       <h2>Blogs</h2>
-      <Message 
+      <Message
         message={message}
       />
       {user === null ?
@@ -179,13 +179,14 @@ const App = () => {
           </div>
         </div>
       }
-      {blogs.map(blog =>
+      {blogs.map((blog, i) =>
         <Blog
-        key={blog.id}
-        blog={blog}
-        addLike={addLike}
-        deleteBlog={deleteBlog}
-        isOwnedByUser={user ? blog.user.username === user.username : false}
+          key={blog.id}
+          blog={blog}
+          addLike={addLike}
+          deleteBlog={deleteBlog}
+          isOwnedByUser={user ? blog.user.username === user.username : false}
+          last={i === blogs.length - 1}
         />
       )}
     </div>

@@ -1,11 +1,14 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 
-const Blog = ({ blog, addLike, deleteBlog, isOwnedByUser }) => {
+const Blog = ({ blog, addLike, deleteBlog, isOwnedByUser, last }) => {
   const blogStyle = {
-    margin: 10,
     padding: 10,
     width: 400,
-    boxShadow: '0px 5px 5px rgba(0, 0, 0, 0.3)'
+    border: '1px solid #aaa',
+    borderBottom: '0px solid',
+  }
+  if (last) {
+    blogStyle.borderBottom = '1px solid #aaa'
   }
 
   const [visible, setVisible] = useState(false)
@@ -27,8 +30,8 @@ const Blog = ({ blog, addLike, deleteBlog, isOwnedByUser }) => {
         <div>likes: {blog.likes} <button onClick={() => addLike(blog)}>like</button></div>
         <div>{blog.user.name}</div>
         <button
-        style={{backgroundColor: 'red', display: isOwnedByUser ? '': 'none'}}
-        onClick={() => deleteBlog(blog)}>remove</button>
+          style={{ backgroundColor: 'red', display: isOwnedByUser ? '' : 'none' }}
+          onClick={() => deleteBlog(blog)}>remove</button>
       </div>
     </div>
   )
