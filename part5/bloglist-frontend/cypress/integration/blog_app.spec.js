@@ -95,7 +95,7 @@ describe('Blog app', function() {
         cy.get('.blog').should('not.contain', 'blog1')
       })
 
-      it.only('Blogs are ordered by likes', function() {
+      it('Blogs are ordered by likes', function() {
         cy.get('.blog').contains('blog1').as('blog1')
         cy.get('.blog').contains('blog2').as('blog2')
         cy.get('.blog').contains('blog3').as('blog3')
