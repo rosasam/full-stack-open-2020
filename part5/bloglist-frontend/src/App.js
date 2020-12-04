@@ -15,9 +15,7 @@ const App = () => {
   const [message, setMessage] = useState({ text: null, class: null })
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs(blogs.sort((a, b) => a.likes < b.likes))
-    )
+    blogService.getAll().then(blogs => setBlogs(blogs.sort((a, b) => b.likes - a.likes)))
   }, [])
 
   useEffect(() => {
@@ -100,7 +98,7 @@ const App = () => {
           .map(b => {
             return b.id === blog.id ? { ...b, likes: blog.likes } : b
           })
-          .sort((a, b) => a.likes < b.likes)
+          .sort((a, b) => b.likes - a.likes)
       )
     } catch (exception) {
       displayErrorMessage(`Could not like blog: ${exception.response.data.error}`)
