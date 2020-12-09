@@ -1,7 +1,7 @@
 import anecdoteService from '../services/anecdotes'
 
 export const voteOnAnecdote = (anecdote) => {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     const newAnecdote = {...anecdote, votes: anecdote.votes + 1 }
     const updatedAnecdote = await anecdoteService.update(newAnecdote)
     dispatch({
