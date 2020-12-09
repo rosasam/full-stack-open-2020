@@ -26,16 +26,27 @@ export const voteOnAnecdote = (id) => {
   }
 }
 
+export const createAnecdote = (anecdote) => {
+  return {
+    type: 'NEW_ANECDOTE',
+    data: asObject(anecdote)
+  }
+}
+
 const reducer = (state = initialState, action) => {
   console.log('state now: ', state)
   console.log('action', action)
-  
+
   switch (action.type) {
     case 'VOTE':
       return state.map((anecdote) => ({
         ...anecdote,
         votes: anecdote.id === action.data.id ? anecdote.votes + 1 : anecdote.votes
       }))
+
+    case 'NEW_ANECDOTE':
+      return state.concat(action.data)
+      
     default:
       return state
   }
