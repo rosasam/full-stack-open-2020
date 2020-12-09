@@ -5,6 +5,7 @@ import { showNotification, resetNotification } from '../reducers/notificationRed
 
 const AnecdoteList = () => {
   const anecdotes = useSelector(state => state.anecdotes)
+  const filterValue = useSelector(state => state.filter)
   const dispatch = useDispatch()
 
   const vote = (id) => {
@@ -17,7 +18,8 @@ const AnecdoteList = () => {
 
   return (
     <div>
-      {anecdotes.map(anecdote =>
+      {anecdotes.map(anecdote => 
+        anecdote.content.toLowerCase().includes(filterValue.toLowerCase()) && (
         <div key={anecdote.id}>
           <div>
             {anecdote.content}
@@ -27,7 +29,7 @@ const AnecdoteList = () => {
             <button onClick={() => vote(anecdote.id)}>vote</button>
           </div>
         </div>
-      )}
+      ))}
     </div>
   )
 }
