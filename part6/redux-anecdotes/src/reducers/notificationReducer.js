@@ -1,20 +1,30 @@
 const initialState = {
   text: 'Hidden text',
-  visibility: 'hidden'
+  visibility: 'hidden',
+  timeoutID: null
 }
 
 export const showNotification = (text, timeout) => {
-  return (dispatch) => {
-    dispatch({
-      type: 'SHOW_NOTIFICATION',
-      text
-    })
-    setTimeout(() => {
+  return (dispatch, getState) => {
+    const oldTimeoutID = getState().notification.timeoutID
+    if (oldTimeoutID) {
+      clearTimeout(oldTimeoutID)
+    }
+
+    const newTimeoutID = setTimeout(() => {
       dispatch({
         type: 'HIDE_NOTIFICATION',
-        text
+        text,
+        timeoutID: null
       })
     }, timeout * 1000)
+
+    dispatch({
+      type: 'SHOW_NOTIFICATION',
+      text,
+      timeoutID: newTimeoutID
+    })
+    
   }
 }
 
@@ -23,10 +33,11 @@ const reducer = (state = initialState, action) => {
     case 'SHOW_NOTIFICATION':
       return {
         text: action.text,
-        visibility: 'visible'
+        visibility: 'visible',
+        timeoutID: action.timeoutID
       }
     case 'HIDE_NOTIFICATION':
-      return action.text === state.text ? initialState : state
+      return initialState
     default:
       return state
   }
